@@ -4,6 +4,25 @@ const posts = require("./../data/postsList");
 //importo DB
 const connection = require("./../data/db");
 
+//definisco query sql
+const postssql = "SELECT * FROM posts";
+const tagssql =
+  "SELECT post_id, tags.label FROM post_tag JOIN posts ON post_tag.post_id = posts.id JOIN tags ON post_tag.tag_id = tags.id";
+
+//inizializzo valori dove salvare array venuti dalle chiamate
+let postslist = [];
+let tags = [];
+//faccio prima query
+connection.query(postssql, (err, postresults) => {
+  //salviamo il risultato del post
+  postslist = postresults;
+});
+
+// eseguiamo la seconda query per i tags
+connection.query(tagssql, (err, tagsResults) => {
+  // salvo valori tags
+  tags = tagsResults;
+});
 //funzione da eseguire nella rotta index
 function index(req, res) {
   // //creo array con lista posts da filtrare e lo inizializzo come la lista originale
@@ -27,20 +46,17 @@ function index(req, res) {
   // //   res.send(tag);
   // res.json(objectJson);
 
-  //definiamo la query sql
-  const sql = "SELECT * FROM posts";
-
-  //eseguo la query
-  connection.query(sql, (err, results) => {
-    if (err) return res.status(500).json({ error: "Database query failed" });
-    //creo oggetto che voglio far tornare con valore results tornato dal DB
-    const objectJson = {
-      number_posts: results.length,
-      posts: results,
-    };
-    //ritorno l'oggetto
-    res.json(objectJson);
+  //unisco i due array con i valori tags
+  const postsArr = postslist.map((post) => {
+    const tagsArr = tags.filter((tag) => tag.post_id === post.id);
+    return { ...post, tags: tagsArr.map((tag) => tag.label) };
   });
+  const objectJson = {
+    number_posts: postsArr.length,
+    posts: postsArr,
+  };
+  //ritorno l'oggetto
+  res.json(objectJson);
 }
 
 //funzione da eseguire nella rotta show
