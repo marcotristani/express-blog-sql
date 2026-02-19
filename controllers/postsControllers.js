@@ -66,16 +66,32 @@ function show(req, res) {
   // res.json(post);
 
   //definisco query sql con Prepared Statements per id
-  const sql = "SELECT * FROM posts WHERE id = ?";
+  const postssql = "SELECT * FROM posts WHERE id = ?";
+  const tagssql =
+    "SELECT tags.label FROM post_tag JOIN posts ON post_tag.post_id = posts.id JOIN tags ON post_tag.tag_id = tags.id WHERE post_tag.post_id = ?";
 
   //eseguo query sql con id recuperato da params
-  connection.query(sql, [id], (err, results) => {
+  connection.query(postssql, [id], (err, postresults) => {
     if (err) return res.status(500).json({ error: "Database query failed" });
-    if (results.length === 0)
+
+    if (postresults.length === 0)
       return res
         .status(404)
         .json({ error: "Not Found", message: "post non trovato nella lista" });
-    res.json(results[0]);
+
+    //salviamo il risultato del post
+    const post = postresults[0];
+
+    // Se è andata bene, eseguiamo la seconda query per i tags
+    connection.query(tagssql, [id], (err, tagsResults) => {
+      if (err) return res.status(500).json({ error: "Database query failed" });
+
+      // aggiungiamo la proprietà tags a post creando un array con il valore label di ogni tag
+      post.tags = tagsResults.map((tag) => tag.label);
+
+      //ritorniamo il valore post completo di tag
+      res.json(post);
+    });
   });
 }
 
