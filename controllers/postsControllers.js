@@ -48,22 +48,35 @@ function show(req, res) {
   //recuper il parametro id che mi viene dato nella richiesta dell'endpoint
   const id = parseInt(req.params.id);
 
-  //vado a recuperare il post con id fornitoci come parametro
-  const post = posts.find((post) => post.id === id);
+  // //vado a recuperare il post con id fornitoci come parametro
+  // const post = posts.find((post) => post.id === id);
 
-  //verifico se questo post esiste nella lista
-  if (!post) {
-    //se non esiste vado a forzare o stato con codice 404 not found
-    res.status(404);
-    //finico la funzione restiturendo questo messaggio di errore
-    return res.send({
-      error: "Not Found",
-      message: "post non trovato nella lista",
-    });
-  }
+  // //verifico se questo post esiste nella lista
+  // if (!post) {
+  //   //se non esiste vado a forzare o stato con codice 404 not found
+  //   res.status(404);
+  //   //finico la funzione restiturendo questo messaggio di errore
+  //   return res.send({
+  //     error: "Not Found",
+  //     message: "post non trovato nella lista",
+  //   });
+  // }
 
-  //Se invece questo post essite restituisco l'oggetto del post ricercato
-  res.json(post);
+  // //Se invece questo post essite restituisco l'oggetto del post ricercato
+  // res.json(post);
+
+  //definisco query sql con Prepared Statements per id
+  const sql = "SELECT * FROM posts WHERE id = ?";
+
+  //eseguo query sql con id recuperato da params
+  connection.query(sql, [id], (err, results) => {
+    if (err) return res.status(500).json({ error: "Database query failed" });
+    if (results.length === 0)
+      return res
+        .status(404)
+        .json({ error: "Not Found", message: "post non trovato nella lista" });
+    res.json(results[0]);
+  });
 }
 
 //funzione da eseguire nella rotta store
