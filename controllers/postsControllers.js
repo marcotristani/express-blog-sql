@@ -1,6 +1,9 @@
 //importo lista post che mi servirà nelle funzioni
 const posts = require("./../data/postsList");
 
+//importo DB
+const connection = require("./../data/db");
+
 //funzione da eseguire nella rotta index
 function index(req, res) {
   //creo array con lista posts da filtrare e lo inizializzo come la lista originale
