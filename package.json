@@ -1,0 +1,18 @@
+{
+  "name": "express-blog-sql",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "marcotristani",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "watch": "node --watch app.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "mysql2": "^3.17.2"
+  }
+}
