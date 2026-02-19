@@ -49,7 +49,7 @@ function index(req, res) {
   //unisco i due array con i valori tags
   const postsArr = postslist.map((post) => {
     const tagsArr = tags.filter((tag) => tag.post_id === post.id);
-    return { ...post, tags: tagsArr.map((tag) => tag.label) };
+    return tagsArr ? { ...post, tags: tagsArr.map((tag) => tag.label) } : "";
   });
   const objectJson = {
     number_posts: postsArr.length,
@@ -113,24 +113,35 @@ function show(req, res) {
 
 //funzione da eseguire nella rotta store
 function store(req, res) {
-  //vado a crearmi un id univoco(provvisorio poichè quando avrò i database non avrò questa necessità)
-  const id = Date.now();
+  // //vado a crearmi un id univoco(provvisorio poichè quando avrò i database non avrò questa necessità)
+  // const id = Date.now();
 
-  //vado a creare l'oggetto nel nuovo post con le informazioni ricavate dal body della richiesta all'endpoint della nostra API
-  const newPost = {
-    id: id,
-    title: req.body.title,
-    content: req.body.content,
-    image: req.body.image,
-    tags: req.body.tags,
-  };
+  // //vado a creare l'oggetto nel nuovo post con le informazioni ricavate dal body della richiesta all'endpoint della nostra API
+  // const newPost = {
+  //   id: id,
+  //   title: req.body.title,
+  //   content: req.body.content,
+  //   image: req.body.image,
+  //   tags: req.body.tags,
+  // };
 
-  //faccio un push di quest'oggetto nell'array della lista dei post
-  posts.push(newPost);
+  // //faccio un push di quest'oggetto nell'array della lista dei post
+  // posts.push(newPost);
 
-  //faccio ritornare questo nuovo oggetto per vederne l'anteprima
-  res.status(201);
-  res.json(newPost);
+  // //faccio ritornare questo nuovo oggetto per vederne l'anteprima
+  // res.status(201);
+  // res.json(newPost);
+
+  const { title, content, image } = req.body;
+  // prepariamo la query
+  const sql = "INSERT INTO posts (title,content, image) VALUES (?, ?, ?)";
+  // eseguiamo la query
+  connection.query(sql, [title, content, image], (err, results) => {
+    if (err) return res.status(500).json({ error: "Failed to insert post" });
+    res.status(201); // status corretto
+    console.log(results);
+    res.json({ id: results.insertId }); // restituiamo l'id assegnato dal DB
+  });
 }
 
 //funzione da eseguire nella rotta update
