@@ -153,24 +153,33 @@ function destroy(req, res) {
   //recupero id dell'elemento che voglio andare ad eliminare
   const id = parseInt(req.params.id);
 
-  //recupero l'elemento che voglio eliminare
-  const post = posts.find((post) => post.id === id);
+  // //recupero l'elemento che voglio eliminare
+  // const post = posts.find((post) => post.id === id);
 
-  //verifico se è presente quest'elemento e se non c'è faccio ritornare messaggio di errore
-  if (!post) {
-    res.status(404);
+  // //verifico se è presente quest'elemento e se non c'è faccio ritornare messaggio di errore
+  // if (!post) {
+  //   res.status(404);
 
-    return res.send({
-      error: "Not found",
-      message:
-        "Non è stato possibile cancellare il post perchè non è presente nella lista posts",
-    });
-  }
+  //   return res.send({
+  //     error: "Not found",
+  //     message:
+  //       "Non è stato possibile cancellare il post perchè non è presente nella lista posts",
+  //   });
+  // }
 
-  //vado ad eliminare con splice l'elemento recuperato
-  posts.splice(posts.indexOf(post), 1);
-  //forzo lo stato con successo a 204
-  res.sendStatus(204);
+  // //vado ad eliminare con splice l'elemento recuperato
+  // posts.splice(posts.indexOf(post), 1);
+  // //forzo lo stato con successo a 204
+  // res.sendStatus(204);
+
+  //definisco query sql con Prepared Statements
+  const sql = "DELETE FROM posts WHERE id = ?";
+
+  //eseguo chiamata query con id recuperato da params
+  connection.query(sql, [id], (err) => {
+    if (err) return res.status(500).json({ error: "Failed to delete post" });
+    res.sendStatus(204);
+  });
 }
 
 module.exports = { index, show, store, update, modify, destroy };
