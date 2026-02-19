@@ -6,30 +6,41 @@ const connection = require("./../data/db");
 
 //funzione da eseguire nella rotta index
 function index(req, res) {
-  //creo array con lista posts da filtrare e lo inizializzo come la lista originale
-  let filteredPosts = posts;
+  // //creo array con lista posts da filtrare e lo inizializzo come la lista originale
+  // let filteredPosts = posts;
+  // //se esiste un valore di query fornito allora applico il filtro
+  // if (req.query.tag) {
+  //   //recuperiamo il valore per la chiave tag fornitaci nella query string normalizzata
+  //   const tag = req.query.tag.toLowerCase();
+  //   //verifico se il tag arrivato è presente nell'array tags dell'oggetto posts e mi faccio tornare i post che soddisfano questa condizione
+  //   filteredPosts = posts.filter((post) => {
+  //     //normalizzo i valori da confrontare
+  //     const normalTags = post.tags.map((tag) => tag.toLowerCase());
+  //     return normalTags.includes(tag);
+  //   });
+  // }
+  // //costruisco l'oggetto da restituire come json
+  // const objectJson = {
+  //   number_posts: filteredPosts.length,
+  //   posts: filteredPosts,
+  // };
+  // //   res.send(tag);
+  // res.json(objectJson);
 
-  //se esiste un valore di query fornito allora applico il filtro
-  if (req.query.tag) {
-    //recuperiamo il valore per la chiave tag fornitaci nella query string normalizzata
-    const tag = req.query.tag.toLowerCase();
+  //definiamo la query sql
+  const sql = "SELECT * FROM posts";
 
-    //verifico se il tag arrivato è presente nell'array tags dell'oggetto posts e mi faccio tornare i post che soddisfano questa condizione
-    filteredPosts = posts.filter((post) => {
-      //normalizzo i valori da confrontare
-      const normalTags = post.tags.map((tag) => tag.toLowerCase());
-      return normalTags.includes(tag);
-    });
-  }
-
-  //costruisco l'oggetto da restituire come json
-  const objectJson = {
-    number_posts: filteredPosts.length,
-    posts: filteredPosts,
-  };
-
-  //   res.send(tag);
-  res.json(objectJson);
+  //eseguo la query
+  connection.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: "Database query failed" });
+    //creo oggetto che voglio far tornare con valore results tornato dal DB
+    const objectJson = {
+      number_posts: results.length,
+      posts: results,
+    };
+    //ritorno l'oggetto
+    res.json(objectJson);
+  });
 }
 
 //funzione da eseguire nella rotta show
